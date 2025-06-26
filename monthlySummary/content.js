@@ -38,7 +38,7 @@ function handleAllotment() {
   const trs = getTrs()
   trs.map(item => {
     const tds = getTds(item)
-    const regex = /[1-9]\d*(\.\d+)?/ig
+    const regex = /[0-9]\d*(\.\d+)?/ig
     const matches = tds[functionCol].innerText.match(regex)
     tds[allotmentCol].innerText = accMul(matches[0] || 0, score)
   })
