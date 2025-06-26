@@ -1,5 +1,7 @@
+const score = 3
 const totalRow = 2
 const startRow = 3
+const functionCol = 2
 const allotmentCol = 6
 const accountCol = 7
 const completionCol = 8
@@ -17,6 +19,11 @@ const accMul = accFactory('times')
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse('success')
+
+  if (message.action === 'allotment') {
+    handleAllotment()
+  }
+
   if (message.action === 'fillTable') {
     handleFillTable()
   }
@@ -26,6 +33,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return true
 })
+
+function handleAllotment() {
+  const trs = getTrs()
+  trs.map(item => {
+    const tds = getTds(item)
+    const regex = /[1-9]\d*(\.\d+)?/ig
+    const matches = tds[functionCol].innerText.match(regex)
+    tds[allotmentCol].innerText = accMul(matches[0] || 0, score)
+  })
+}
 
 function handleFillTable() {
   const trs = getTrs()
