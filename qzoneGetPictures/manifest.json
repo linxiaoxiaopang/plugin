@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "qq空间图片列表下载",
+  "version": "1.0",
+  "description": "捕获并展示浏览器请求头信息",
+  "permissions": [
+    "webRequest",
+    "storage",
+    "tabs",
+    "scripting",
+    "windows",
+    "activeTab",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://user.qzone.qq.com/*",
+    "https://h5.qzone.qq.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://user.qzone.qq.com/*"],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "js/*"],
+      "matches": ["https://user.qzone.qq.com/*"]
+    }
+  ]
+}
+
