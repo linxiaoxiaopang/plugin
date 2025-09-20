@@ -5,7 +5,23 @@ const cacheRequest = {
   body: null
 }
 
+class Storage {
+  static get(key) {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(key, (result) => {
+        resolve(result[key])
+      })
+    })
+  }
 
+  static set(key, value) {
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ [key]: value }, () => {
+        resolve(true)
+      })
+    })
+  }
+}
 
 chrome.webRequest.onSendHeaders.addListener(
   async (details) => {
@@ -49,13 +65,63 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["https://www.temu.com/api/bg/circle/c/mall/newGoodsList*"] }, // 监听所有URL
   ["requestBody"] // 需要获取的信息
 )
+const NEW_GOODS_LIST_KEY = 'new_goods_list_key'
+
+const actionList = {
+  async getCacheRequest() {
+    return cacheRequest
+  },
+
+  async getStorage(request) {
+    const { key } = request.data
+    return await Storage.get(key)
+  },
+
+  async setStorage(request) {
+    const { key, data } = request.data
+    return await Storage.set(key, data)
+  },
+
+  async getNewGoodsList() {
+    const data = await Storage.get(NEW_GOODS_LIST_KEY)
+    if (Object.keys(data || {}).length) return data
+    return {
+      pageNumber: 1,
+      nextPageNumber: 1,
+      pageSize: 0,
+      finish: false,
+      list: [],
+      time: Date.now()
+    }
+  },
+
+  async setNewGoodsList(request) {
+    const { data: row } = request.data
+    const data = await actionList.getNewGoodsList()
+    data.pageSize = row.pageSize
+    data.pageNumber = row.pageNumber
+    data.nextPageNumber = row.pageNumber + 1
+    data.finish = row.finish
+    data.time = Date.now()
+    const rowData = row.data || []
+    data.list.push(...rowData)
+    await Storage.set(NEW_GOODS_LIST_KEY, data)
+  },
+
+  async clearNewGoodsList() {
+    await Storage.set(NEW_GOODS_LIST_KEY, {})
+  }
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // 根据请求类型处理不同逻辑
-  if (request.action === "getCacheRequest") {
-    // 发送响应
-    sendResponse({
-      data: cacheRequest
+  const action = request.action
+  if (actionList[action]) {
+    actionList[action](request).then(res => {
+      sendResponse({
+        data: res
+      })
     })
   }
+  return true
 })
