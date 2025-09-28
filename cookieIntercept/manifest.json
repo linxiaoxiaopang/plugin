@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "temu多店铺同时登陆",
+  "version": "1.0",
+  "description": "支持temu多店铺同时登陆",
+  "permissions": ["cookies", "storage", "webNavigation", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
