@@ -1,7 +1,8 @@
 const rowList = {
   matchKeyword(url) {
     return this.keywords.some(keyword => {
-      return url.indexOf(keyword) >= 0
+      const reg = new RegExp(keyword)
+      return reg.test(url)
     })
   },
 
@@ -52,7 +53,7 @@ const rowList = {
 
     authentication: {
       cache: {},
-      keywords: ['https://agentseller.temu.com/main/authentication'],
+      keywords: ['https://agentseller(-[a-z]+)?.temu.com/main/authentication'],
       usedKeys: ['mallid', 'seller_temp'],
       onCookiesChanged() {
         return true
@@ -74,7 +75,7 @@ const rowList = {
 
     gentseller: {
       cache: {},
-      keywords: ['https://agentseller.temu.com'],
+      keywords: ['https://agentseller(-[a-z]+)?.temu.com', 'https://seller.kuajingmaihuo.com'],
       usedKeys: ['mallid', 'seller_temp']
     }
   }

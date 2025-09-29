@@ -3,16 +3,34 @@
   "name": "temu多店铺同时登陆",
   "version": "1.0",
   "description": "支持temu多店铺同时登陆",
-  "permissions": ["cookies", "storage", "webNavigation", "tabs", "scripting"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "cookies",
+    "storage",
+    "webNavigation",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background/main.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": [
+        "https://agentseller.temu.com/*",
+        "https://agentseller-us.temu.com/*",
+        "https://agentseller-eu.temu.com/*",
+        "https://agentseller.temu.com/",
+        "https://agentseller-us.temu.com/",
+        "https://agentseller-eu.temu.com/"
+      ],
+      "type": "module",
+      "js": [
+        "content.js"
+      ]
     }
   ]
 }

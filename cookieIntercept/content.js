@@ -1,12 +1,13 @@
-// 当页面可见性变化时触发
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    console.log('当前 Tab 被激活了')
-
-    // 这里可以执行需要的操作
-    // 比如刷新 Cookie、请求最新数据等
-  } else {
-    console.log('当前 Tab 被隐藏了')
-  }
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState != 'visible') return
+  //阻塞50ms 给后台更新 cookie流出时间
+  sleepSync(50)
 })
 
+
+function sleepSync(ms) {
+  const start = Date.now()
+  while (Date.now() - start < ms) {
+    // 空循环阻塞
+  }
+}
