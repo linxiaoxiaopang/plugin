@@ -1,3 +1,54 @@
+import Storage from './utils/storage.js'
+
+class Cache {
+  constructor(cacheKey) {
+    this.cacheKey = cacheKey
+    this.timer = null
+    this.interval = 1000 * 60
+  }
+
+  get cache() {
+    return Storage.get(this.cacheKey)
+  }
+
+  set cache(value) {
+    return Storage.set(this.cacheKey, value)
+  }
+
+  get(key) {
+    return this.cache.then(res => {
+      if (!res) return null
+      return res[key]
+    })
+  }
+
+  set(key, value) {
+    this.loopClear()
+    return this.cache.then(res => {
+      res = res || {}
+      res[key] = value
+      return res
+    }).then((res) => {
+      return Storage.set(this.cacheKey, res)
+    })
+  }
+
+  loopClear() {
+    this.timer && clearTimeout(this.timer)
+    this.timer = setTimeout(() => {
+      chrome.tabs.query({}, async (tabs) => {
+        const cache = await this.cache
+        const allTabIds = tabs.map(tab => tab.id)
+        Object.keys(cache || {}).map(key => {
+          const fItem = allTabIds.find(tabId => tabId == key)
+          if (!fItem) delete cache[key]
+        })
+        this.cache = cache
+      })
+    }, this.interval)
+  }
+}
+
 const rowList = {
   matchKeyword(url) {
     return this.keywords.some(keyword => {
@@ -6,31 +57,34 @@ const rowList = {
     })
   },
 
-  onCookiesChanged({ cookie, removed, tabId }) {
-    const current = this.cache[tabId]
+  async onCookiesChanged({ cookie, removed, tabId }) {
+    const current = await this.cache.get(tabId)
     if (!current || removed) return
     if (!this.usedKeys.includes(cookie.name)) {
       current.cookiesMap[cookie.name] = cookie
+      this.cache.set(tabId, current)
       return
     }
     current.cookiesMap[cookie.name] = cookie
+    this.cache.set(tabId, current)
   },
 
-  onBeforeNavigate({ details, cookies }) {
+  async onBeforeNavigate({ details, cookies }) {
     const { url, tabId } = details
     if (!this.matchKeyword(url)) return
     const cookiesMap = arrayToObject(cookies)
-    if (this.cache[tabId]) return
-    this.cache[tabId] = {
+    const current = await this.cache.get(tabId)
+    if (current) return
+    this.cache.set(tabId, {
       details,
       url,
       cookiesMap
-    }
+    })
   },
 
-  onActivated({ details }) {
+  async onActivated({ details }) {
     const { tabId } = details
-    const current = this.cache[tabId]
+    const current = await this.cache.get(tabId)
     if (!current) return
     const url = current?.url
     const cookiesMap = current?.cookiesMap
@@ -46,13 +100,13 @@ const rowList = {
 
   column: {
     siteMain: {
-      cache: {},
+      cache: new Cache('siteMainCookieCacheKey'),
       keywords: ['https://seller.kuajingmaihuo.com/settle/site-main'],
       usedKeys: ['SUB_PASS_ID']
     },
 
     authentication: {
-      cache: {},
+      cache: new Cache('authenticationCookieCacheKey'),
       keywords: ['https://agentseller(-[a-z]+)?.temu.com/main/authentication'],
       usedKeys: ['mallid', 'seller_temp'],
       onCookiesChanged() {
@@ -74,7 +128,7 @@ const rowList = {
     },
 
     gentseller: {
-      cache: {},
+      cache: new Cache('gentsellerCookieCacheKey'),
       keywords: ['https://agentseller(-[a-z]+)?.temu.com', 'https://seller.kuajingmaihuo.com'],
       usedKeys: ['mallid', 'seller_temp']
     }
@@ -94,26 +148,6 @@ export const list = (function () {
 })()
 
 
-function compareRepeat(
-  {
-    cache,
-    curTabId,
-    prevTabId,
-    prop
-  }
-) {
-  if (!curTabId || !prevTabId) return
-  const current = cache[curTabId]
-  const prev = cache[prevTabId]
-  if (!current || !prev) return false
-  if (!prop) return false
-  const { cookiesMap: currentCookiesMap } = current
-  const { cookiesMap: prevCookiesMap } = prev
-  const currentCookiesValue = currentCookiesMap[prop]?.value
-  const prevCookiesValue = prevCookiesMap[prop]?.value
-  return currentCookiesValue == prevCookiesValue
-}
-
 function arrayToObject(arr) {
   const obj = {}
   arr.forEach(item => {
@@ -121,29 +155,3 @@ function arrayToObject(arr) {
   })
   return obj
 }
-
-const multiStoreCookieKey = 'MULTI_STORE_COOKIE_KEY'
-chrome.windows.onFocusChanged.addListener(windowId => {
-  if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    const multiStoreCookie = Object.keys(list).reduce((prev, cur) => {
-      prev[cur] = list[cur].cache
-      return prev
-    }, {})
-    chrome.storage.local.set({
-      [multiStoreCookieKey]: multiStoreCookie
-    }, () => {
-      console.log('存储成功')
-    })
-    return
-    // 可以在这里保存状态到 chrome.storage
-  }
-  chrome.storage.local.get([multiStoreCookieKey], result => {
-    Object.keys(list).map(key => {
-      const item = list[key]
-      if(!Object.keys(item.cache).length) {
-        item.cache = result[multiStoreCookieKey]?.[key] || {}
-      }
-    })
-    console.log('读取成功')
-  })
-})
