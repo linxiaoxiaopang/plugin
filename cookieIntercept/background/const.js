@@ -121,3 +121,29 @@ function arrayToObject(arr) {
   })
   return obj
 }
+
+const multiStoreCookieKey = 'MULTI_STORE_COOKIE_KEY'
+chrome.windows.onFocusChanged.addListener(windowId => {
+  if (windowId === chrome.windows.WINDOW_ID_NONE) {
+    const multiStoreCookie = Object.keys(list).reduce((prev, cur) => {
+      prev[cur] = list[cur].cache
+      return prev
+    }, {})
+    chrome.storage.local.set({
+      [multiStoreCookieKey]: multiStoreCookie
+    }, () => {
+      console.log('存储成功')
+    })
+    return
+    // 可以在这里保存状态到 chrome.storage
+  }
+  chrome.storage.local.get([multiStoreCookieKey], result => {
+    Object.keys(list).map(key => {
+      const item = list[key]
+      if(!Object.keys(item.cache).length) {
+        item.cache = result[multiStoreCookieKey]?.[key] || {}
+      }
+    })
+    console.log('读取成功')
+  })
+})
