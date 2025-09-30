@@ -1,4 +1,4 @@
-import Storage from './utils/storage.js'
+import Storage from '../../utils/storage.js'
 
 class Cache {
   constructor(cacheKey) {
@@ -23,7 +23,7 @@ class Cache {
   }
 
   set(key, value) {
-    this.loopClear()
+    // this.loopClear()
     return this.cache.then(res => {
       res = res || {}
       res[key] = value
