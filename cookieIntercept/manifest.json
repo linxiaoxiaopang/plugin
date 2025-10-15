@@ -4,6 +4,7 @@
   "version": "1.0",
   "description": "支持temu多店铺同时登陆",
   "permissions": [
+    "webRequest",
     "cookies",
     "storage",
     "webNavigation",
