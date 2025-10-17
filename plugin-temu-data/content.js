@@ -52,8 +52,8 @@ class DealWithShopData {
     const hasMore = res?.result?.has_more
     if (!hasMore) return
     this.pageNumber++
-    await this.wait(3000)
-    // await this.getData()
+    await this.wait(1000)
+    await this.getData()
   }
 
   formatResult(res) {
@@ -69,11 +69,13 @@ class DealWithShopData {
           url
         },
         sales_num: salesNum,
+        goods_id: goodsId,
         link_url: linkUrl,
         seo_link_url: seoLinkUrl,
         price_info: { price_str: price, market_price_str: marketPrice }
       } = item
       return {
+        goodsId: (goodsId || '').toString(),
         salesNum,
         price,
         marketPrice,

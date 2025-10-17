@@ -1,17 +1,21 @@
 async function exportExcel(data, fileName) {
-  const exceljsUrl = chrome.runtime.getURL('./exceljs.min.js')
+  const exceljsUrl = chrome.runtime.getURL('./content/exceljs.min.js')
   await import(exceljsUrl)
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Sheet1')
   // 示例 JSON 数据，新增了图片列
   const jsonData = data
+
+
   const keyMap = {
-    title: 'title',
-    marketPrice: 'marketPrice',
-    price: 'price',
+    goodsId: 'goodsId',
     salesNum: 'salesNum',
+    price: 'price',
+    marketPrice: 'marketPrice',
+    title: 'title',
     url: 'url',
-    link: 'link'
+    linkUrl: 'linkUrl',
+    seoLinkUrl: 'seoLinkUrl'
   }
   const tableData = jsonData.map(item => {
     const tmpObj = {}
