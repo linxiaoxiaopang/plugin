@@ -44,7 +44,6 @@ export class MockClass {
     formatMockData(mockRes)
     fillForeignKeyList(mockRes, foreignKeyList)
     console.log('mockRes', mockRes)
-    debugger
     return mockRes
   }
 
