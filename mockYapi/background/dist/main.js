@@ -165,11 +165,14 @@ const instance = new _mockClass__WEBPACK_IMPORTED_MODULE_0__["MockClass"]();
 // 监听来自 content.js 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // 根据消息类型处理
+  const uuid = request.data.uuid;
   if (request.action === "getMockData") {
     instance.getYApiData(request).then(res => {
+      res.uuid = uuid;
       sendResponse(res);
     }).catch(err => {
       sendResponse({
+        uuid,
         code: 0,
         message: err
       });
@@ -227,7 +230,6 @@ class MockClass {
     Object(_utils__WEBPACK_IMPORTED_MODULE_2__["formatMockData"])(mockRes);
     Object(_utils__WEBPACK_IMPORTED_MODULE_2__["fillForeignKeyList"])(mockRes, foreignKeyList);
     console.log('mockRes', mockRes);
-    debugger;
     return mockRes;
   }
   async getBody(id) {
