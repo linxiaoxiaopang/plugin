@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "百度AI图片助手",
+  "version": "1.0",
+  "description": "百度AI图片助手",
+  "permissions": [
+    "webRequest",
+    "cookies",
+    "storage",
+    "webNavigation",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/main.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "type": "module",
+      "js": [
+        "content/main.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "content/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
