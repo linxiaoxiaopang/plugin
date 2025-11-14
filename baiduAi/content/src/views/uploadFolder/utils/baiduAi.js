@@ -7,9 +7,13 @@ export class BaiduAi {
     }
   ) {
     this.file = file
+    this.url = URL.createObjectURL(file)
+    this.title = file.name
+    this.total = file.size
     this.retryCount = 0
+    this.status = 'ready'
+    this.remark = ''
   }
-
 
   async fileToBase64() {
     return await fileToBase64(this.file)
@@ -133,12 +137,14 @@ export class BaiduAi {
 
   async action() {
     try {
+      this.status = 'uploading'
       const url = await this.picUpload()
       const cutoutRes = await this.cutout(url)
       const res = await this.pcquery(cutoutRes)
-      console.log('res', res)
+      this.status = 'success'
     } catch (err) {
-      console.log(err)
+      this.remark = err
+      this.status = 'failed'
     }
   }
 }

@@ -1,39 +1,69 @@
 <template>
-  <div v-move-to-dom="`.ai-edit-wraper .upload-btn`">
-    <button @click="onclick" style="display: inline-block; height: 40px;" class="button-wrapper upload-btn">上传文件夹
+  <div class="upload-folder-component" v-move-to-dom="`.ai-edit-wraper .upload-btn`">
+    <button @click="onclick" class="button-wrapper upload-btn">
+      <div class="upload-icon">
+        <img src="https://psstatic.cdn.bcebos.com/basics/image_fe/upload_1713244752000.png">
+      </div>
+      <div class="lg"> 上传文件夹</div>
     </button>
-    <input ref="input" @change="onchange" type="file" id="folderInput" webkitdirectory style="display: none;"/>
+    <input ref="input" :key="key" @change="onchange" type="file" id="folderInput" webkitdirectory
+           style="display: none;"/>
+    <AiTask :uploadTasks="data" />
   </div>
 </template>
 
 <script>
+import AiTask from './module/aiTask'
 import LimitQueue from '@/utils/utils/limitQueue'
 import { BaiduAi } from './utils/baiduAi'
+import { accDiv, accMul } from '@/utils/calculate'
+import { option } from './const'
+import { getUUID } from '@/utils'
 
 export default {
+  components: {
+    AiTask
+  },
+
+  data() {
+    return {
+      option,
+      visible: false,
+      key: getUUID(),
+      limitQueueInstance: new LimitQueue({ limit: 40 }),
+      data: []
+    }
+  },
+
   methods: {
     onclick() {
       this.$refs.input.click()
     },
 
-  async  onchange(e) {
-      const limitQueueInstance = new LimitQueue({ limit: 40 })
+    async onchange(e) {
+      const limitQueueInstance = this.limitQueueInstance
       const fileList = [...e.target.files]
-      const pArr = fileList.map(async file => {
+      const instanceList = fileList.map(file => new BaiduAi({ file }))
+      this.data.push(...instanceList)
+      instanceList.map(async instance => {
         const p1 = new Promise(resolve => {
           const fn = async () => {
-            const instance = new BaiduAi({
-              file
-            })
             const res = await instance.action()
-            console.log('res', res)
+            resolve(res)
           }
           limitQueueInstance.concat(fn)
         })
         return p1
       })
-      await Promise.all(pArr)
+      this.visible = true
+      this.key = getUUID()
     }
+  },
+
+  destroyed() {
+    this.data.map(item => {
+      URL.revokeObjectURL(item.url)
+    })
   }
 }
 

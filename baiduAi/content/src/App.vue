@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="vue-app">
     <UploadFolder v-if="pageIsRendered"/>
   </div>
 </template>
