@@ -1,51 +1,10 @@
 require('dotenv').config({ path: `.env.${process.env.ENV_STAGE}` })
-const webpack = require('webpack')
 const path = require('path')
 const ENV = process.env.NODE_ENV
 const version = new Date().getTime()
 /* eslint-disable */
 const CONFIG = {
-  TITLE: '正丁跨境工具箱',
-  DEVSERVER:
-    process.env.ENV_STAGE === 'serve'
-      ? {
-          //端口号
-          port: 8080,
-          proxy: {
-            '/baidu': {
-              target: 'https://aip.baidubce.com',
-              ws: true,
-              changeOrigin: true, //允许跨域
-              pathRewrite: {
-                '^/baidu': '' //请求的时候使用这个/baidu 就可以
-              }
-            },
-            '/node': {
-              target: 'http://192.168.10.55:3001',
-              ws: true,
-              changeOrigin: true, //允许跨域
-              pathRewrite: {
-                '^/node': '' //请求的时候使用这个/baidu 就可以
-              }
-            },
-            '/': {
-              target: process.env.VUE_APP_BASE_URL,
-              changeOrigin: true
-            }
-          }
-        }
-      : {
-        proxy: {
-          '/node': {
-            target: 'http://192.168.10.55:3001',
-            ws: true,
-            changeOrigin: true, //允许跨域
-            pathRewrite: {
-              '^/node': '' //请求的时候使用这个/baidu 就可以
-            }
-          }
-        }
-      }
+  TITLE: '百度AI插件'
 }
 
 /* eslint-enable */
@@ -80,7 +39,14 @@ module.exports = {
       }
     }
   },
-  devServer: CONFIG.DEVSERVER,
+  devServer: {
+    writeToDisk: (filePath) => {
+      if (filePath.includes('.hot-update.')) {
+        return false // 不写入磁盘
+      }
+      return true
+    }
+  },
 
   chainWebpack: (config) => {
     config.module.rule('svg').exclude.add(resolve('src/icons')).end()

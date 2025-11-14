@@ -25,13 +25,14 @@
       ],
       "type": "module",
       "js": [
-        "content/main.js"
-      ]
+        "content.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [ "content/*"],
+      "resources": [ "content/dist/*", "popup/dist/*"],
       "matches": ["<all_urls>"]
     }
   ]
