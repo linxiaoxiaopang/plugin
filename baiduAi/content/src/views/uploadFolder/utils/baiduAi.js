@@ -10,6 +10,8 @@ export class BaiduAi {
     this.url = URL.createObjectURL(file)
     this.title = file.name
     this.total = file.size
+    this.maxRetryCount = 5
+    this.uploadRetryCount = 0
     this.retryCount = 0
     this.status = 'ready'
     this.resUrl = ''
@@ -30,6 +32,9 @@ export class BaiduAi {
       timestamp,
       pageFr: ''
     }
+    if(this.uploadRetryCount > 0) {
+      formData.uploadRetryCount = this.uploadRetryCount
+    }
     const urlEncodedData = new URLSearchParams()
     Object.entries(formData).forEach(([key, value]) => {
       urlEncodedData.append(key, value)
@@ -42,8 +47,17 @@ export class BaiduAi {
       body: urlEncodedData.toString()
     }).then(res => {
       return res.json()
-    })
-    if (!res?.data?.url) throw '上传图片失败'
+    }).catch(() => false)
+    if (!res?.data?.url && this.uploadRetryCount < this.maxRetryCount) {
+      this.uploadRetryCount++
+      return await new Promise(async resolve => {
+        setTimeout(async () => {
+          const res = await this.picUpload()
+          resolve(res)
+        }, 2000 * this.uploadRetryCount)
+      })
+      throw '上传图片失败'
+    }
     return res?.data?.url
   }
 
@@ -86,7 +100,7 @@ export class BaiduAi {
       pic_fr: 0
     }
     if (this.retryCount > 0) {
-      form.retryCount = ++this.retryCount
+      form.retryCount = this.retryCount
     }
     const formData = new FormData()
     Object.entries(form).forEach(([key, value]) => {
@@ -98,8 +112,8 @@ export class BaiduAi {
     }).then(res => {
       return res.json()
     })
-    if (!res?.pcEditTaskid) throw '抠图失败'
-    if (res.isGenerate && res.status === 4) {
+    if (res.isGenerate && res.status === 4 && this.retryCount < this.maxRetryCount) {
+      this.retryCount++
       return await new Promise(async resolve => {
         setTimeout(async () => {
           const res = await this.cutout()
@@ -107,6 +121,7 @@ export class BaiduAi {
         }, 2000)
       })
     }
+    if (!res?.pcEditTaskid) throw '抠图失败'
     return res
   }
 

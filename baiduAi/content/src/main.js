@@ -3,8 +3,8 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
-import '@/styles/theme/index.css' // global css
-import '@/styles/index.scss' // global css
+// import '@/styles/theme/index.css' // global css
+// import '@/styles/index.scss' // global css
 import 'font-awesome/css/font-awesome.min.css'
 import moment from 'moment' //导入文件
 //重写fabric 方法

@@ -1,7 +1,7 @@
 <template>
   <div :class="[shake && 'shake', 'missionComponent']">
     <ColorTextBtn class="iconfont icon-renwu font-color" @click="showHandler"></ColorTextBtn>
-    <EForm ref="form" :sup_this="sup_this" :data="data" :taskDialog.sync="taskDialog" v-on="$listeners"/>
+    <EForm ref="form" :sup_this="sup_this" :data="data" :taskDialog.sync="taskDialog1" v-on="$listeners"/>
   </div>
 </template>
 
@@ -25,6 +25,7 @@ export default {
   data() {
     return {
       sup_this: this,
+      taskDialog1: this.taskDialog,
       shake: false
     }
   },
@@ -35,6 +36,14 @@ export default {
       this.shakeTimer = setTimeout(() => {
         this.shake = false
       }, 2000)
+    },
+
+    taskDialog(newVal) {
+      this.taskDialog1 =  newVal
+    },
+
+    taskDialog1(newVal) {
+      this.$emit('update:taskDialog', newVal)
     }
   },
 
