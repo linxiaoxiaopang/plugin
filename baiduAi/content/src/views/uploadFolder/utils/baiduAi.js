@@ -12,6 +12,7 @@ export class BaiduAi {
     this.total = file.size
     this.retryCount = 0
     this.status = 'ready'
+    this.resUrl = ''
     this.remark = ''
   }
 
@@ -140,7 +141,7 @@ export class BaiduAi {
       this.status = 'uploading'
       const url = await this.picUpload()
       const cutoutRes = await this.cutout(url)
-      const res = await this.pcquery(cutoutRes)
+      this.resUrl = await this.pcquery(cutoutRes)
       this.status = 'success'
     } catch (err) {
       this.remark = err

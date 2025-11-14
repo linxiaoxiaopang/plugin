@@ -9,7 +9,9 @@
     "storage",
     "webNavigation",
     "tabs",
-    "scripting"
+    "downloads",
+    "scripting",
+    "notifications"
   ],
   "host_permissions": [
     "<all_urls>"

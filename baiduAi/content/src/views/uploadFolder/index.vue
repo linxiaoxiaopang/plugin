@@ -8,7 +8,7 @@
     </button>
     <input ref="input" :key="key" @change="onchange" type="file" id="folderInput" webkitdirectory
            style="display: none;"/>
-    <AiTask :uploadTasks="data" />
+    <AiTask :uploadTasks="data"/>
   </div>
 </template>
 
@@ -16,7 +16,6 @@
 import AiTask from './module/aiTask'
 import LimitQueue from '@/utils/utils/limitQueue'
 import { BaiduAi } from './utils/baiduAi'
-import { accDiv, accMul } from '@/utils/calculate'
 import { option } from './const'
 import { getUUID } from '@/utils'
 
@@ -45,7 +44,7 @@ export default {
       const fileList = [...e.target.files]
       const instanceList = fileList.map(file => new BaiduAi({ file }))
       this.data.push(...instanceList)
-      instanceList.map(async instance => {
+      const pArr = instanceList.map(async instance => {
         const p1 = new Promise(resolve => {
           const fn = async () => {
             const res = await instance.action()
@@ -57,6 +56,12 @@ export default {
       })
       this.visible = true
       this.key = getUUID()
+      await Promise.all(pArr)
+      if(chrome?.runtime)  {
+        chrome.runtime.sendMessage({ action: 'download', data: instanceList.filter(item => item.resUrl) }, () => {
+          this.$message.success('生成完毕，开始下载到本地。')
+        })
+      }
     }
   },
 
