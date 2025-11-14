@@ -1,3 +1,5 @@
+import { getPictureParams } from './getToken'
+
 export class BaiduAi {
   constructor(
     {
@@ -8,13 +10,12 @@ export class BaiduAi {
     this.retryCount = 0
   }
 
+
   async fileToBase64() {
-    const { fileToBase64 } = await import(chrome.runtime.getURL('./content/utils/imageUtils.js'))
     return await fileToBase64(this.file)
   }
 
   async picUpload() {
-    const { getPictureParams } = await import(chrome.runtime.getURL('./content/module/getToken.js'))
     const picInfo = await this.fileToBase64()
     const { token, timestamp } = getPictureParams(picInfo)
     const formData = {
@@ -140,4 +141,16 @@ export class BaiduAi {
       console.log(err)
     }
   }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    // 读取文件为 DataURL（Base64 格式）
+    reader.readAsDataURL(file)
+    // 读取成功
+    reader.onload = (e) => resolve(e.target.result)
+    // 读取失败
+    reader.onerror = (error) => reject(error)
+  })
 }

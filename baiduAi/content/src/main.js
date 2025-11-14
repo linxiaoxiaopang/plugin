@@ -38,6 +38,13 @@ Vue.prototype.$bus = new Vue()
 moment.locale('zh-cn')
 moment.relativeTimeThreshold('h', 24) // 设置新的阈值 - 一天最少小时数
 
+const container = document.createElement('div')
+container.style.cssText = 'position:fixed; top:20px; left:20px; background:green; color:white; padding:10px;'
+const app = document.createElement('div')
+app.id = 'vue-app'
+document.body.appendChild(container)
+container.appendChild(app)
+
 Vue.use(ElementUI, { locale })
   .use(baseComponents)
   .use(globalConst)
@@ -49,8 +56,7 @@ Vue.use(ElementUI, { locale })
   .use(VueWorker)
 Vue.config.productionTip = false
 new Vue({
-  el: '#app',
   router,
   store,
   render: (h) => h(App)
-})
+}).$mount('#vue-app')

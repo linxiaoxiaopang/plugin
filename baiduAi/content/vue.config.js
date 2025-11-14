@@ -2,6 +2,8 @@ require('dotenv').config({ path: `.env.${process.env.ENV_STAGE}` })
 const path = require('path')
 const ENV = process.env.NODE_ENV
 const version = new Date().getTime()
+const CustomJsonpScriptSrcPlugin = require('./plugin/customJsonpScriptSrcPlugin')
+
 /* eslint-disable */
 const CONFIG = {
   TITLE: '百度AI插件'
@@ -16,11 +18,13 @@ function resolve(dir) {
 const themeDesignContainerPath = path.join('views', 'components', 'themeDesignContainer')
 module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
-  publicPath: './',
+  publicPath: 'content/dist',
   outputDir: 'dist',
   productionSourceMap: false,
 
+
   configureWebpack: (config) => {
+    config.devtool = false
     //生产环境去除log
     if (ENV === 'production') {
       config.output.filename = 'js/[name].[chunkhash:8].' + version + '.js'
@@ -31,6 +35,8 @@ module.exports = {
       compress.drop_debugger = true
       compress.pure_funcs = ['console.log']
     }
+
+
     return {
       resolve: {
         alias: {
@@ -85,6 +91,9 @@ module.exports = {
       args[0].title = CONFIG.TITLE
       return args
     })
+
+    config.plugin('custom-jsonp-script-src')
+      .use(CustomJsonpScriptSrcPlugin)
   },
   css: {
     loaderOptions: {

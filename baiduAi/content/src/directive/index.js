@@ -5,6 +5,7 @@ import handleClipboard from '@/directive/clipboard'
 import { setPx } from '@/components/avue/utils/util'
 import appendToBody from '@/directive/appendToBody'
 import sortTable from '@/directive/sortTable'
+import moveToDom from '@/directive/moveToDom'
 
 export default {
   install: (Vue) => {
@@ -479,5 +480,6 @@ export default {
 
     //拖拽排序
     Vue.directive('sortTable', sortTable)
+    Vue.directive('moveToDom', moveToDom)
   }
 }

@@ -1,6 +1,7 @@
 class AnalysisEntry {
   constructor() {
-    this.prefix = 'content/dist'
+    // this.prefix = 'content/dist'
+    this.prefix = ''
   }
 
   async getContent() {
@@ -13,8 +14,9 @@ class AnalysisEntry {
 
   getRelativePath(url) {
     try {
-      const urlParser = new URL(url)
-      return `${this.prefix}/${urlParser.pathname}`
+      const { pathname } = new URL(url)
+      const fIndex = pathname.indexOf('content/dist')
+      return `${this.prefix}/${pathname.slice(fIndex)}`
     } catch {
       return url
     }
