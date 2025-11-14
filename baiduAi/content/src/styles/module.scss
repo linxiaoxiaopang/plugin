@@ -1,0 +1,222 @@
+.icon-sort {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: #FFFFFF;
+  font-size: 14px;
+  background: #3841DB;
+  text-align: center;
+  border-radius: 50%;
+}
+.select-border {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 124px;
+  height: 124px;
+  margin-bottom: 26px;
+  color: $color-primary;
+  background: #F9FBFF;
+  .content {
+    text-align: center;
+  }
+  [class^=el-icon-] {
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  &.is-warning {
+    color: #FB6161;
+    background: #FFF9F9;
+  }
+}
+.border-dashed {
+  border: 1px dashed;
+}
+.border {
+  border: 1px solid #DCDEE0;
+}
+.el-form-item.is-multiple {
+  .el-col {
+    padding-right: 15px;
+    margin-bottom: 10px;
+  }
+  &.el-form-item--small {
+    margin-bottom: 8px;
+    .el-form-item__error {
+      margin-top: -10px;
+    }
+  }
+}
+.primary-btn {
+  color: $color-primary;
+  cursor: pointer;
+}
+
+// 列表页 - 表格高度限制 （完成视图内显示）
+.flex-one-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: 100%;
+  .el-table {
+    flex: 1;
+    overflow: auto;
+    border-left: 1px solid #ebeef5 !important;
+  }
+}
+
+// 按钮之间竖线
+.menu-btn-item {
+  $ml: 18px;
+  + .menu-btn-item {
+    position: relative;
+    margin-left: $ml;
+    &.line {
+      margin-left: $ml !important;
+    }
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: -($ml / 2 + 2);
+      width: 1px;
+      height: 1em;
+      background-color: #DCDFE6;
+    }
+  }
+  &.line::after {
+    display: none !important;
+  }
+  .el-button,
+  &.el-button {
+    margin-right: 0;
+  }
+}
+
+
+// 运单申请创建订单
+.order-create-wrapper {
+  font-size: $text-small;
+  color: $color-content;
+  div.pull-auto {
+    .avue-form__group {
+      padding: 0;
+    }
+
+    .avue-group {
+      margin-bottom: 4px;
+
+      &.avue-group__orderCode {
+        .avue-form__group {
+          padding-left: 11px;
+          margin-top: -4px;
+        }
+      }
+
+      &.avue-group__consigneeInfo {
+        .avue-form__group {
+          padding-left: 11px;
+        }
+
+        .el-form-item {
+          margin-bottom: 15px;
+
+          .el-form-item__error {
+            margin-bottom: 3px;
+          }
+        }
+
+        .avue-form__row {
+          &:nth-child(2),
+          &:nth-child(5),
+          &:nth-child(8),
+          &:nth-child(11) {
+            margin-left: 36px;
+          }
+
+          &:nth-child(3),
+          &:nth-child(6),
+          &:nth-child(9) {
+            width: 100% !important;
+            height: 0;
+          }
+        }
+      }
+
+      &.avue-group__declaredInfo,
+      &.avue-group__expressInfo {
+        .menu-left {
+          display: none;
+        }
+      }
+
+      .el-form-item__error {
+        position: relative;
+      }
+
+      .el-form-item .el-table {
+        margin-bottom: 5px;
+      }
+    }
+
+    .avue-group__header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+
+      .avue-group__title {
+        @include montantLeft;
+        line-height: 1;
+        padding-left: 0;
+      }
+
+      .el-button--text {
+        padding: 0;
+        font-size: $text-small;
+      }
+    }
+
+    .el-form-item__label {
+      width: auto !important;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    th {
+      font-weight: 400;
+      color: $color-title;
+    }
+
+    td {
+      color: $color-content;
+    }
+
+    .avue-group,
+    .avue-group__title {
+      border: none;
+    }
+
+    .avue-group__title {
+      background-color: transparent;
+    }
+  }
+
+  .order-create-footer {
+    margin-top: 18px;
+    text-align: right;
+  }
+}
+
+.circle {
+  display: inline-block;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  background: #F7F8FA;
+  border: 1px solid #DCDEE0;
+  color: $color-content;
+  text-align: center;
+  border-radius: 50%;
+}

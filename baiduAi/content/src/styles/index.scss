@@ -1,0 +1,248 @@
+@import './layout';
+@import './resetCss';
+// @import './variables.scss';
+// @import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './media.scss'; //媒体查询
+// @import './sidebar.scss';
+@import './atomic.scss';
+@import './common.scss';
+@import './account.scss';
+@import './module.scss';
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: ' ';
+    clear: both;
+    height: 0;
+  }
+}
+
+//main-container全局样式
+.app-main {
+  min-height: 100%;
+}
+
+.app-container {
+  height: $page-container-height;
+  padding: $page-container-padding;
+  overflow: auto;
+  // margin-left: 10px;
+  // margin-right: 10px;
+  background-color: #fff;
+
+  &.container-crud-popover {
+    .crud-container,
+    .el-table__body-wrapper,
+    .el-table__fixed-body-wrapper {
+      overflow: hidden;
+    }
+  }
+}
+.app-flex-col-container.app-flex-col-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #ebebed;
+  padding: 0;
+  // height: $page-show-height;
+  .flex-col-content {
+    padding: 10px;
+    width: 100%;
+    flex: 1;
+    background: #fff;
+    overflow: auto;
+  }
+  .flex-content {
+    padding: 10px;
+    width: 100%;
+    flex: 1;
+    background: #fff;
+    overflow: hidden;
+  }
+  .bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    width: 100%;
+    height: 60px;
+    background: #fff;
+    top: 10px;
+    .el-button.el-button {
+      margin-left: 15px;
+    }
+  }
+}
+.app-flex-col-container.user-style {
+  height: $page-show-height;
+}
+.head-form-container {
+  .el-select {
+    width: 100%;
+  }
+}
+.head-container {
+  padding-bottom: 15px;
+
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+  .el-form {
+    padding: 0;
+    .el-form-item {
+      margin-bottom: 0;
+    }
+  }
+  input {
+    height: 30.5px;
+    line-height: 30.5px;
+  }
+
+  .el-input__icon,
+  .el-input-group__append {
+    line-height: 31px;
+  }
+  ::v-deep.el-range-editor.el-input__inner {
+    height: 30.5px;
+    line-height: 30.5px;
+    .el-range-separator {
+      height: 30.5px;
+      line-height: 30.5px;
+    }
+    .el-input__icon {
+      height: 30.5px;
+      line-height: 30.5px;
+    }
+  }
+  .el-button {
+    margin: 0;
+    margin-bottom: 10px;
+  }
+}
+
+.head-form-container {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  background: #fff;
+  border-radius: 4px;
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+  .el-form.el-form.el-form {
+    padding: 0;
+    .el-form-item {
+      margin-bottom: 0;
+    }
+  }
+  input {
+    height: 30.5px;
+    line-height: 30.5px;
+  }
+
+  .el-input__icon,
+  .el-input-group__append {
+    line-height: 31px;
+  }
+  ::v-deep.el-range-editor.el-input__inner {
+    height: 30.5px;
+    line-height: 30.5px;
+    .el-range-separator {
+      height: 30.5px;
+      line-height: 30.5px;
+    }
+    .el-input__icon {
+      height: 30.5px;
+      line-height: 30.5px;
+    }
+  }
+  .el-select {
+    width: 100%;
+  }
+  .el-form.el-form {
+    padding: 0;
+  }
+  .el-form-item {
+    height: 40px;
+    margin-bottom: 0;
+    .el-form-item__content {
+      display: flex;
+      align-items: center;
+    }
+  }
+  .el-form-item__label {
+    white-space: nowrap;
+  }
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.el-avatar {
+  display: inline-block;
+  text-align: center;
+  background: #ccc;
+  color: #fff;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 16px;
+}
+
+.sub-navbar {
+  height: 50px;
+  line-height: 50px;
+  position: relative;
+  width: 100%;
+  text-align: right;
+  padding-right: 20px;
+  transition: 600ms ease position;
+  background: linear-gradient(
+    90deg,
+    rgba(32, 182, 249, 1) 0%,
+    rgba(32, 182, 249, 1) 0%,
+    rgba(33, 120, 241, 1) 100%,
+    rgba(33, 120, 241, 1) 100%
+  );
+
+  .subtitle {
+    font-size: 20px;
+    color: #fff;
+  }
+
+  &.draft {
+    background: #d0d0d0;
+  }
+
+  &.deleted {
+    background: #d0d0d0;
+  }
+}
+
+.page-height {
+  height: $page-show-height;
+}
+.bg#fff {
+  height: $page-show-height;
+}
+
+
+.color-title-btn {
+  &,
+  .el-button {
+    color: $color-title;
+  }
+}

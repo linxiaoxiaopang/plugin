@@ -1,0 +1,109 @@
+$--color-primary: #3841DB;
+$--color-success: #13ce66;
+$--color-warning: #ffba00;
+$--color-danger: #ec3636;
+$--color-info: #909399;
+
+$text-mini: 12px;
+$text-small: 14px;
+$text-medium: 16px;
+$text-large: 18px;
+
+//sidebar
+$menuTitleHeight: 44px;
+$menuLeft: 24px;
+$menuHeight: 44px;
+$menuBg:#303133;
+$subMenuBg: #fff;
+$menuHover: #EBECFF;
+
+
+$blue:#324157;
+$light-blue:#3A71A8;
+$red:#C03639;
+$light-red: #F43131;
+$pink: #E65D6E;
+$green: #30B08F;
+$tiffany: #4AB7BD;
+$yellow:#FEC171;
+$panGreen: #30B08F;
+$tree-color: #ebefff;
+$black: #333333;
+$font-background: #EBECFF;
+
+$color-success: $--color-success;
+$color-danger: $--color-danger;
+$color-primary: $--color-primary;
+$color-warning: $--color-warning;
+$color-info: $--color-info;
+$color-title: #495060;
+$color-content: #636C78;
+$border-color: #EBEEF5;
+$border-light-color: #eee;
+$color-white: #fff;
+
+$color-gray: #666666;
+$color-striking: #F43131;
+$color-light-gray: #9DA3AC;
+$w-size: 1200px;
+$bg-color: #F3F3F5;
+$bg-thin-color: #f7f8fa;
+$bg-gray-color: #f7f7f7;
+$warning-btn-color: #FF854C;
+$bg-address-color: #f7f8fa;
+$dialog-border-color: #e9eaec;
+$white-background: #f4f6f7;
+$bg-opacity: rgba(0, 0, 0, 0.46);
+$bg-light-opacity: rgba(0, 0, 0, 0.35);
+
+// border
+$border-line: #ededed;
+$border-logo: #bbbbbb;
+$border-picture: #dcdee0;
+
+// border-radius
+$border-radius--mini: 2px;
+$border-radius--medium: 8px;
+
+//text
+$text-color: #a2a2a2;
+
+$border: 1px solid $border-color;
+
+// 页面显示区域高度
+$page-header-height: 60px;
+$page-container-header-gutter: 10px;
+$page-footer-height: 60px;
+$page-container-footer-gutter: 10px;
+$page-sidebar-width: 200px;
+$page-container-sidebar-gutter: 20px;
+$page-container-top: $page-header-height + $page-container-header-gutter;
+$page-container-bottom: $page-footer-height + $page-container-footer-gutter;
+$page-container-left: $page-sidebar-width + $page-container-sidebar-gutter;
+$page-container-right: 20px;
+$page-container-height: calc(100vh - #{$page-container-top + $page-container-bottom});
+$page-container-padding: 16px;
+$page-show-height: calc(100vh - #{$page-container-top + $page-container-bottom});
+$page-main-footer-gutter: 10px;
+$page-main-bottom: $page-footer-height + $page-main-footer-gutter;
+$page-no-bottom-height: calc(100vh - #{$page-header-height});
+
+
+// form
+$form-container-bottom: 32px;
+$form-line-height: 32px;
+$form-item-height: 32px;
+$form-item-gutter: 20px;
+$form-item-top: ($form-line-height - $form-item-height) / 2;
+$form-item-bottom: $form-item-gutter - $form-item-top * 2;
+
+// icon
+$arrow-icon-color: #7F8792;
+
+
+$color-sub: #86909C; // 辅助文字
+$color-background--extensive: #f2f3f5; // 背景大浅底色/不可点击
+$color-background:  #F7F8FA; // 底色
+
+
+$color-important: #ff4d4f;

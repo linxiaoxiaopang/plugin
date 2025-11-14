@@ -1,0 +1,190 @@
+#app {
+  // 主体区域
+  .main-container {
+    min-height: calc(100% - #{$page-container-header-gutter});
+    transition: margin-left 0.28s;
+    margin: $page-container-header-gutter $page-container-right 0 $page-container-left;
+    position: relative;
+  }
+  //隐藏侧边导航栏的主体区域
+  .full-container {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .message-page,
+  .notice-page {
+    margin: 0 $page-container-right 0 $page-container-sidebar-gutter;
+  }
+  .accountCancel-Page{
+    margin: 0 10px;
+  }
+  // 侧边栏
+  .sidebar-container {
+    // transition: width 0.28s;
+    width: $page-sidebar-width !important;
+    height: $page-container-height;
+    // position: fixed;
+    font-size: 0;
+    top: $page-header-height;
+    bottom: 0;
+    left: 0;
+    padding-top: 20px;
+    z-index: 1001;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
+    border-right: 1px solid #DCDEE0;
+    //reset element-ui css
+    .horizontal-collapse-transition {
+      transition: 0s width ease-in-out, 0s padding-left ease-in-out,
+        0s padding-right ease-in-out;
+    }
+    .el-scrollbar__bar.is-vertical {
+      right: 0;
+    }
+    .scrollbar-wrapper {
+      overflow-x: hidden !important;
+      .el-scrollbar__view {
+        height: 100%;
+      }
+    }
+    .is-horizontal {
+      display: none;
+    }
+    a {
+      display: inline-block;
+      width: 100%;
+      overflow: hidden;
+    }
+    .svg-icon {
+      position: absolute;
+      top: 2px;
+      bottom: 0;
+      margin: auto;
+      font-size: 16px;
+
+      + * {
+        margin-left: 30px;
+      }
+    }
+    .el-menu {
+      border: none;
+      height: 100%;
+      width: 100% !important;
+    }
+    .el-menu-item {
+      padding-left: $menuLeft !important;
+      height: 44px;
+      line-height: 44px;
+      &.is-active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background-color: $--color-primary;
+      }
+      &:hover {
+        color: $--color-primary !important;
+        background-color: #fff;
+      }
+    }
+    .el-submenu__title {
+      padding-left: $menuLeft !important;
+    }
+    .is-active > .el-submenu__title {
+      color: $color-primary !important;
+    }
+    .is-zero-retract {
+      .el-submenu__title {
+        color: #636C78 !important;
+      }
+    }
+  }
+  .hideSidebar {
+    .sidebar-container {
+      width: 42px !important;
+    }
+    .main-container {
+      margin-left: 42px;
+    }
+    .submenu-title-noDropdown {
+      padding-left: 10px !important;
+      position: relative;
+      .el-tooltip {
+        padding: 0 10px !important;
+      }
+    }
+    .el-submenu {
+      overflow: hidden;
+      & > .el-submenu__title {
+        padding-left: 10px !important;
+        .el-submenu__icon-arrow {
+          display: none;
+        }
+      }
+    }
+    .el-menu--collapse {
+      .el-submenu {
+        & > .el-submenu__title {
+          & > span {
+            height: 0;
+            width: 0;
+            overflow: hidden;
+            visibility: hidden;
+            display: inline-block;
+          }
+        }
+      }
+    }
+  }
+  .hideIconArrow .el-submenu__icon-arrow {
+    display: none;
+  }
+  .sidebar-container .nest-menu .el-submenu > .el-submenu__title {
+    @include elMenuItem;
+    height: $menuTitleHeight;
+    line-height: $menuTitleHeight;
+  }
+  .sidebar-container .el-submenu .el-menu-item {
+    @include elMenuItem;
+  }
+  .el-menu--collapse .el-menu .el-submenu {
+    min-width: 190px !important;
+  }
+  .el-submenu__icon-arrow {
+    display: none;
+  }
+
+  //适配移动端
+  .mobile {
+    .main-container {
+      margin-left: 0px;
+    }
+    .sidebar-container {
+      transition: transform 0.28s;
+      width: 190px !important;
+    }
+    &.hideSidebar {
+      .sidebar-container {
+        transition-duration: 0.3s;
+        transform: translate3d(-190px, 0, 0);
+      }
+    }
+  }
+  .withoutAnimation {
+    .main-container,
+    .sidebar-container {
+      transition: none;
+    }
+  }
+}
+
+.el-menu--vertical {
+  & > .el-menu {
+    .svg-icon {
+      font-size: 16px;
+      margin-right: 25px;
+    }
+  }
+}

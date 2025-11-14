@@ -1,0 +1,7 @@
+// 媒体查询
+
+@media only screen and (min-width: 1200px) {
+  .global-col-lg-average-7 {
+    width: calc(100% / 7);
+  }
+}
