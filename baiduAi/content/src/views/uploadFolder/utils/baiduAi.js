@@ -112,7 +112,7 @@ export class BaiduAi {
     }).then(res => {
       return res.json()
     })
-    if (res.isGenerate && res.status === 4 && this.retryCount < this.maxRetryCount) {
+    if (res.isGenerate && res.status === 4) {
       this.retryCount++
       return await new Promise(async resolve => {
         setTimeout(async () => {
