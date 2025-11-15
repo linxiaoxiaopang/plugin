@@ -10,13 +10,12 @@
     @closed="onclose"
   >
     <div ref="body" class="body" v-infinite-scroll="load" infinite-scroll-distance="10">
-      <div class="task-list--text">
-        <span
-        >上传任务：<span class="text-primary">{{ data.length }}张</span></span
-        >
-        <span class="ml40"
-        >上传成功：<span class="text-primary">{{ succeeded.length }}张</span></span
-        >
+      <baseButton class="mt10 mb10" type="primary" @click="download">
+        下载已完成图片
+      </baseButton>
+      <div class="task-list--text mb20">
+        <span>上传任务：<span class="text-primary">{{ data.length }}张</span></span>
+        <span class="ml40">上传成功：<span class="text-primary">{{ succeeded.length }}张</span></span>
       </div>
       <CommonTable height="auto" :selection="false" :cols="cols" :infoData="data">
         <template #statusSlot="{ scoped: row }">
@@ -125,6 +124,12 @@ export default {
     },
     onclose() {
       this.$emit('update:taskDialog', false)
+    },
+    download() {
+      if (!chrome?.runtime) return
+      chrome.runtime.sendMessage({ action: 'download', data: this.data.filter(item => item.resUrl) }, () => {
+        this.$message.success('开始下载到本地，请稍后。')
+      })
     }
   }
 }
