@@ -9,7 +9,6 @@ export const tasksCols = [
     prop: 'total',
     label: '文件大小',
     align: 'center',
-    width: 80,
     slotName: 'totalSlot'
   },
   {

@@ -22,6 +22,7 @@
           <el-tag :type="row.status">
             {{ text(row) }}
           </el-tag>
+          <BaseProgress v-if="row.status == 'cutout'" :percentage="row.percentage.cutout" :width="80" />
           <div v-if="row.remark" class="text-striking mt10">失败原因：{{ row.remark }}</div>
         </template>
 
@@ -49,19 +50,23 @@
             {{ size(row) }}
           </el-tag>
         </template>
-
-
       </CommonTable>
     </div>
   </BaseDialog>
 </template>
 <script>
+import BaseProgress from '@/views/components/base/baseProgress'
 import CacheImg from '@/components/cacheImg.vue'
 
 import { tasksCols as cols } from './cols'
-import { UP_STATUS, DOWN_STATUS } from '@/utils/constant'
+
 
 export default {
+  components: {
+    CacheImg,
+    BaseProgress
+  },
+
   props: {
     data: {
       type: Array,
@@ -77,9 +82,6 @@ export default {
     }
   },
 
-  components: {
-    CacheImg
-  },
 
   data() {
     return {
@@ -110,7 +112,9 @@ export default {
     text(row) {
       return {
         ready: '待处理',
-        uploading: '处理中',
+        uploading: '图片上传',
+        create: '任务创建',
+        cutout: '抠图',
         failed: '失败',
         success: '成功'
       }[row.status]

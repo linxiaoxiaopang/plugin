@@ -16,6 +16,14 @@ export class BaiduAi {
     this.status = 'ready'
     this.resUrl = ''
     this.remark = ''
+    this.progress = {
+      upload: 0,
+      cutout: 0
+    }
+  }
+
+  get finished() {
+    return this.status === 'success' || this.status === 'failed'
   }
 
   async fileToBase64() {
@@ -32,7 +40,7 @@ export class BaiduAi {
       timestamp,
       pageFr: ''
     }
-    if(this.uploadRetryCount > 0) {
+    if (this.uploadRetryCount > 0) {
       formData.uploadRetryCount = this.uploadRetryCount
     }
     const urlEncodedData = new URLSearchParams()
@@ -112,7 +120,7 @@ export class BaiduAi {
     }).then(res => {
       return res.json()
     })
-    if (res.isGenerate && res.status === 4) {
+    if (res.isGenerate && res.status === 4 && this.retryCount < this.maxRetryCount) {
       this.retryCount++
       return await new Promise(async resolve => {
         setTimeout(async () => {
@@ -139,6 +147,7 @@ export class BaiduAi {
       return res.json()
     })
     if (res.isGenerate === false) {
+      this.progress.cutout = res.progress
       return await new Promise(async resolve => {
         setTimeout(async () => {
           const res = await this.pcquery(task)
@@ -148,6 +157,7 @@ export class BaiduAi {
     }
     const resUrl = res?.picArr?.[0]?.url
     if (!resUrl) throw '获取图片失败'
+    this.progress.cutout = res.progress
     return resUrl
   }
 
@@ -155,7 +165,9 @@ export class BaiduAi {
     try {
       this.status = 'uploading'
       const url = await this.picUpload()
+      this.status = 'create'
       const cutoutRes = await this.cutout(url)
+      this.status = 'cutout'
       this.resUrl = await this.pcquery(cutoutRes)
       this.status = 'success'
     } catch (err) {

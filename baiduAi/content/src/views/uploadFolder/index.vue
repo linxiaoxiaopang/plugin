@@ -57,7 +57,9 @@ export default {
       this.visible = true
       this.key = getUUID()
       await Promise.all(pArr)
-      if(chrome?.runtime)  {
+      const finished = this.data.every(item => item.finished)
+      if (!finished) return
+      if (chrome?.runtime) {
         chrome.runtime.sendMessage({ action: 'download', data: instanceList.filter(item => item.resUrl) }, () => {
           this.$message.success('生成完毕，开始下载到本地。')
         })
