@@ -1,6 +1,11 @@
 <template>
   <div class="upload-folder-component" v-move-to-dom="`.ai-edit-wraper .upload-btn`">
     <button @click="onclick" class="button-wrapper upload-btn">
+      <avue-crud-select @click.native.stop :clearable="false" v-model="concurrency" class="concurrency"
+                        style="width: 60px;position: relative;left: -30px;" :dic="dic"/>
+      <el-checkbox @click.native.stop v-model="useOss" class="ml05" style="position: relative;left: -10px;">
+        <span style="color: #fff;">oss</span>
+      </el-checkbox>
       <div class="upload-icon">
         <img src="https://psstatic.cdn.bcebos.com/basics/image_fe/upload_1713244752000.png">
       </div>
@@ -25,12 +30,28 @@ export default {
   },
 
   data() {
+    const dic = new Array(40).fill(1).map((item, index) => {
+      return {
+        label: index + 1,
+        value: index + 1
+      }
+    })
+    console.log('dic', dic)
     return {
       option,
+      dic,
+      concurrency: 5,
       visible: false,
+      useOss: true,
       key: getUUID(),
-      limitQueueInstance: new LimitQueue({ limit: 40 }),
+      limitQueueInstance: new LimitQueue({ limit: 5 }),
       data: []
+    }
+  },
+
+  watch: {
+    concurrency(newVal) {
+      this.limitQueueInstance.setLimit(newVal || 5)
     }
   },
 
@@ -42,7 +63,7 @@ export default {
     async onchange(e) {
       const limitQueueInstance = this.limitQueueInstance
       const fileList = [...e.target.files]
-      const instanceList = fileList.map(file => new BaiduAi({ file }))
+      const instanceList = fileList.map(file => new BaiduAi({ file, useOss: this.useOss }))
       this.data.push(...instanceList)
       const pArr = instanceList.map(async instance => {
         const p1 = new Promise(resolve => {
@@ -65,17 +86,27 @@ export default {
         })
       }
     }
-  },
-
-  destroyed() {
-    this.data.map(item => {
-      URL.revokeObjectURL(item.url)
-    })
   }
+
+  // destroyed() {
+  //   this.data.map(item => {
+  //     URL.revokeObjectURL(item.url)
+  //   })
+  // }
 }
 
 </script>
 
 <style lang="scss" scoped>
+.concurrency {
+  ::v-deep {
+    .el-input__inner {
+      width: 70px;
+      background: transparent;
+      border: none;
+      color: #fff;
+    }
+  }
+}
 
 </style>

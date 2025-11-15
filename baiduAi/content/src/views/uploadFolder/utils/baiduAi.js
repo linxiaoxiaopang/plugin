@@ -1,13 +1,17 @@
 import { getPictureParams } from './getToken'
+import { uploadToOssUseFile } from '@/utils/oss'
+import { base64ToFile, isBase64 } from '@/utils'
 
 export class BaiduAi {
   constructor(
     {
-      file
+      file,
+      useOss
     }
   ) {
     this.file = file
-    this.url = URL.createObjectURL(file)
+    this.useOss = useOss
+    // this.url = URL.createObjectURL(file)
     this.title = file.name
     this.total = file.size
     this.maxRetryCount = 5
@@ -28,6 +32,19 @@ export class BaiduAi {
 
   async fileToBase64() {
     return await fileToBase64(this.file)
+  }
+
+  async picUploadToOss() {
+    const res = await uploadToOssUseFile(this.file)
+    if (!res.url) throw '上传图片失败'
+    return res.url
+  }
+
+  async base64ToUploadOss(file) {
+    if (!isBase64(file)) return file
+    const res = await uploadToOssUseFile(base64ToFile(file, this.title))
+    if (!res.url) throw 'base64转图片上传失败'
+    return res.url
   }
 
   async picUpload() {
@@ -58,14 +75,14 @@ export class BaiduAi {
     }).catch(() => false)
     if (!res?.data?.url && this.uploadRetryCount < this.maxRetryCount) {
       this.uploadRetryCount++
-      return await new Promise(async resolve => {
+      return await new Promise(async (resolve, reject) => {
         setTimeout(async () => {
-          const res = await this.picUpload()
+          const res = await this.picUpload().catch(err => reject(err))
           resolve(res)
         }, 2000 * this.uploadRetryCount)
       })
-      throw '上传图片失败'
     }
+    if (!res?.data?.url) throw res.message || '上传图片失败'
     return res?.data?.url
   }
 
@@ -129,7 +146,7 @@ export class BaiduAi {
         }, 2000)
       })
     }
-    if (!res?.pcEditTaskid) throw '抠图失败'
+    if (!res?.pcEditTaskid) throw res?.message || '抠图失败'
     return res
   }
 
@@ -148,14 +165,14 @@ export class BaiduAi {
     })
     if (res.isGenerate === false) {
       this.progress.cutout = res.progress
-      return await new Promise(async resolve => {
+      return await new Promise(async (resolve, reject) => {
         setTimeout(async () => {
-          const res = await this.pcquery(task)
+          const res = await this.pcquery(task).catch(err => reject(err))
           resolve(res)
         }, 2000)
       })
     }
-    const resUrl = res?.picArr?.[0]?.url
+    const resUrl = res?.picArr?.[0]?.url || res?.picArr?.[0]?.src
     if (!resUrl) throw '获取图片失败'
     this.progress.cutout = res.progress
     return resUrl
@@ -164,11 +181,18 @@ export class BaiduAi {
   async action() {
     try {
       this.status = 'uploading'
-      const url = await this.picUpload()
+      let url = ''
+      if (this.useOss) {
+        url = await this.picUploadToOss(this.file)
+      } else {
+        url = await this.picUpload()
+      }
       this.status = 'create'
       const cutoutRes = await this.cutout(url)
       this.status = 'cutout'
-      this.resUrl = await this.pcquery(cutoutRes)
+      this.resUrl = await this.pcquery(cutoutRes).then(async res => {
+        return await this.base64ToUploadOss(res)
+      })
       this.status = 'success'
     } catch (err) {
       this.remark = err
