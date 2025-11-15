@@ -30,17 +30,16 @@ export default {
   },
 
   data() {
-    const dic = new Array(40).fill(1).map((item, index) => {
+    const dic = new Array(20).fill(1).map((item, index) => {
       return {
         label: index + 1,
         value: index + 1
       }
     })
-    console.log('dic', dic)
     return {
       option,
       dic,
-      concurrency: 5,
+      concurrency: 20,
       visible: false,
       useOss: true,
       key: getUUID(),
@@ -53,6 +52,13 @@ export default {
     concurrency(newVal) {
       this.limitQueueInstance.setLimit(newVal || 5)
     }
+  },
+
+  mounted() {
+    const uploadTips = document.querySelector('.upload-tips-1')
+    if(!uploadTips) return
+    uploadTips.textContent = '文件夹一次推荐小于40张图片，开启20个线程。支持拖拽、Ctrl+V， '
+    uploadTips.style.fontSize = '30px'
   },
 
   methods: {
