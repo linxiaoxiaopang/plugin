@@ -4,6 +4,12 @@ class Cache {
   constructor(cacheKey) {
     this.cacheKey = cacheKey
     this.timer = null
+    this.promiseList = {
+      delete: {
+        list: [],
+        promise: null
+      }
+    }
     this.interval = 1000 * 60
   }
 
@@ -33,6 +39,29 @@ class Cache {
     })
   }
 
+  async delete(key) {
+    const { promiseList } = this
+    const list = promiseList.delete.list
+    const fIndex = list.findIndex(item => item == key)
+    if (fIndex >= 0) return
+    list.push(key)
+    const promise = promiseList.delete.promise
+    if (promise) return
+    const delKey = list.shift()
+    const p = new Promise(async resolve => {
+      const cache = await this.cache
+      delete cache[delKey]
+      await Storage.set(this.cacheKey, cache)
+      resolve(true)
+    })
+    promiseList.delete.promise = p
+    p.then(() => {
+      promiseList.delete.promise = null
+      if (!list.length) return
+      this.delete(list.shift())
+    })
+  }
+
   loopClear() {
     this.timer && clearTimeout(this.timer)
     this.timer = setTimeout(() => {
@@ -58,32 +87,63 @@ const rowList = {
   },
 
   async onCookiesChanged({ cookie, removed, tabId }) {
-    const current = await this.cache.get(tabId)
-    if (!current || removed) return
-    if (!this.usedKeys.includes(cookie.name)) {
-      current.cookiesMap[cookie.name] = cookie
-      this.cache.set(tabId, current)
-      return
-    }
-    current.cookiesMap[cookie.name] = cookie
-    this.cache.set(tabId, current)
+    // const current = await this.cache.get(tabId)
+    // if (!current || removed) return
+    // if (!this.usedKeys.includes(cookie.name)) {
+    //   current.cookiesMap[cookie.name] = cookie
+    //   this.cache.set(tabId, current)
+    //   return
+    // }
+    // current.cookiesMap[cookie.name] = cookie
+    // this.cache.set(tabId, current)
   },
 
-  async onBeforeNavigate({ details, cookies }) {
-    const { url, tabId } = details
+  async onCreated({ tab }) {
+    const { id: tabId } = tab
+    const url = tab.url = tab.pendingUrl
     if (!this.matchKeyword(url)) return
+    const cookies = await chrome.cookies.getAll({ url })
     const cookiesMap = arrayToObject(cookies)
-    const current = await this.cache.get(tabId)
-    if (current) return
     this.cache.set(tabId, {
-      details,
       url,
+      tab,
       cookiesMap
     })
   },
 
-  async onActivated({ details }) {
-    const { tabId } = details
+  async onUpdated({ tab }) {
+    const { id: tabId, url } = tab
+    if (!this.matchKeyword(url)) return
+    const cookies = await chrome.cookies.getAll({ url })
+    const cookiesMap = arrayToObject(cookies)
+    this.cache.set(tabId, {
+      url,
+      tab,
+      cookiesMap
+    })
+  },
+
+  async onRemoved({ tabId }) {
+    const cache = await this.cache.cache
+    if (!cache) return
+    this.cache.delete(tabId)
+  },
+
+  async onBeforeNavigate({ tab, cookies }) {
+    // const { url, tabId } = tab
+    // if (!this.matchKeyword(url)) return
+    // const cookiesMap = arrayToObject(cookies)
+    // const current = await this.cache.get(tabId)
+    // if (current) return
+    // this.cache.set(tabId, {
+    //   tab,
+    //   url,
+    //   cookiesMap
+    // })
+  },
+
+  async onActivated({ tab }) {
+    const { tabId } = tab
     const current = await this.cache.get(tabId)
     if (!current) return
     const url = current?.url
@@ -112,8 +172,8 @@ const rowList = {
       onCookiesChanged() {
         return true
       },
-      onBeforeNavigate({ details }) {
-        const { url } = details
+      onBeforeNavigate({ tab }) {
+        const { url } = tab
         if (!this.matchKeyword((url))) return
         this.usedKeys.map(async name => {
           await chrome.cookies.remove({
