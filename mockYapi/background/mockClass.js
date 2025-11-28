@@ -66,8 +66,14 @@ export class MockClass {
 
   async getYapiId(data) {
     const { url, projectId } = data
-
     let [err, res] = await this.getProductList(projectId)
+    if (res == NO_LOGIN_CODE) {
+      const [err1] = await this.login()
+      if (err1) throw '登录异常'
+        ;
+      [err, res] = await this.getProductList(projectId)
+    }
+
     if (err || !res) throw '接口不存在'
     res = res || []
     const tmpArr = []
@@ -108,7 +114,7 @@ export class MockClass {
     if (mockRes.page) {
       mockRes.page.pageIndex = requestData.data.page.pageIndex
       mockRes.page.pageSize = requestData.data.page.pageSize
-      if(mockRes.data.length <= mockRes.page.pageSize) {
+      if (mockRes.data.length <= mockRes.page.pageSize) {
         mockRes.page.total = mockRes.data.length
       }
     }

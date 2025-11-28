@@ -167,6 +167,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // 根据消息类型处理
   const uuid = request.data.uuid;
   if (request.action === "getMockData") {
+    request.data.url = request.data.url.replace(/-mock$/, '');
     instance.getYApiData(request).then(res => {
       res.uuid = uuid;
       sendResponse(res);
@@ -253,6 +254,11 @@ class MockClass {
       projectId
     } = data;
     let [err, res] = await this.getProductList(projectId);
+    if (res == NO_LOGIN_CODE) {
+      const [err1] = await this.login();
+      if (err1) throw '登录异常';
+      [err, res] = await this.getProductList(projectId);
+    }
     if (err || !res) throw '接口不存在';
     res = res || [];
     const tmpArr = [];

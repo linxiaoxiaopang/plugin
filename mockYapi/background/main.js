@@ -8,6 +8,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // 根据消息类型处理
   const uuid = request.data.uuid
   if (request.action === "getMockData") {
+    request.data.url = request.data.url.replace(/-mock$/, '')
     instance.getYApiData(request).then((res) => {
       res.uuid = uuid
       sendResponse(res)
