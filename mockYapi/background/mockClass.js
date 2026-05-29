@@ -112,8 +112,8 @@ export class MockClass {
     mockRes.detailMessage = ''
     mockRes.code = 0
     if (mockRes.page) {
-      mockRes.page.pageIndex = requestData.data.page.pageIndex
-      mockRes.page.pageSize = requestData.data.page.pageSize
+      mockRes.page.pageIndex = requestData.data.page && requestData.data.page.pageIndex || 0
+      mockRes.page.pageSize = requestData.data.page && requestData.data.page.pageSize || mockRes.page.pageSize
       if (mockRes.data.length <= mockRes.page.pageSize) {
         mockRes.page.total = mockRes.data.length
       }
