@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "DNG Sales Analyzer",
+  "version": "1.0",
+  "description": "Parse DNG-120d order data and generate sales summary in template format",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DNG Sales Analyzer"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon.png"
+  }
+}

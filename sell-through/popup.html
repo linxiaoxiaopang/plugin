@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>DNG Sales Analyzer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+
+    <h1>DNG Sales Analyzer</h1>
+
+    <!-- Mode tabs -->
+    <div class="tabs">
+      <span id="tabGenerate" class="tab active" data-mode="generate">生成</span>
+      <span id="tabValidate" class="tab" data-mode="validate">校验</span>
+    </div>
+
+    <!-- ============== GENERATE MODE ============== -->
+    <div id="modeGenerate" class="mode-panel">
+      <div class="section">
+        <label class="section-label">1. 源文件 (DNG-120d xlsx.xlsx)</label>
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
+        <div id="fileStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label">2. 模板文件 (DNG 动销表.xlsx)</label>
+        <input type="file" id="templateInput" accept=".xlsx,.xls">
+        <div id="templateStatus" class="status">未选择模板</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label" for="refDate">3. 参考日期</label>
+        <input type="date" id="refDate">
+        <div class="hint">仅统计参考日期前30天的订单</div>
+      </div>
+
+      <div class="section">
+        <button id="generateBtn" disabled>4. 生成动销表</button>
+        <div id="genProgress" class="progress hidden">
+          <div class="spinner"></div>
+          <span id="genProgressText">处理中...</span>
+        </div>
+      </div>
+
+      <div id="genResult" class="result-box hidden">
+        <div class="result-info"><span id="genResultText"></span></div>
+        <button id="downloadBtn" class="btn-green">下载结果</button>
+      </div>
+    </div>
+
+    <!-- ============== VALIDATE MODE ============== -->
+    <div id="modeValidate" class="mode-panel hidden">
+      <div class="section">
+        <label class="section-label">1. 源文件 (生成的动销表.xlsx)</label>
+        <input type="file" id="valSourceInput" accept=".xlsx,.xls">
+        <div id="valSourceStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label">2. 校验文件 (明细数据.xlsx，一行=一单)</label>
+        <input type="file" id="valCheckInput" accept=".xlsx,.xls">
+        <div id="valCheckStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label" for="valRefDate">3. 参考日期</label>
+        <input type="date" id="valRefDate">
+        <div class="hint">仅统计校验文件中参考日期前30天(按"下单时间"列)的数据</div>
+      </div>
+
+      <div class="section">
+        <button id="validateBtn" disabled>4. 开始校验</button>
+        <div id="valProgress" class="progress hidden">
+          <div class="spinner"></div>
+          <span id="valProgressText">校验中...</span>
+        </div>
+      </div>
+
+      <div id="valResult" class="result-box hidden">
+        <div class="result-info"><span id="valResultText"></span></div>
+        <button id="valDownloadBtn" class="btn-green">下载标色后的校验文件</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="lib/exceljs.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
