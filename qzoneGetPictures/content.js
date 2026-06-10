@@ -1,25 +1,25 @@
-let modPhotoTool = null
-let modToolOp = null
+const BTN_ID = 'qzone-download-btn'
 let loading = false
-loadBtn()
 
-function loadBtn() {
-  modPhotoTool = document.querySelector('iframe')?.contentDocument?.querySelector('.mod-photo-tool')
-  if (!modPhotoTool) {
-    setTimeout(() => {
-      loadBtn()
-    }, 2000)
+function tryInject() {
+  const iframeDoc = document.querySelector('iframe')?.contentDocument
+  if (iframeDoc?.querySelector(`#${BTN_ID}`)) {
     return
   }
-  modToolOp = modPhotoTool.querySelector('.mod-tool-op')
+  const modPhotoTool = iframeDoc?.querySelector('.mod-photo-tool')
+  if (!modPhotoTool) return
+  const modToolOp = modPhotoTool.querySelector('.mod-tool-op')
   modToolOp.appendChild(crateDownBtn())
 }
+
+setInterval(tryInject, 2000)
 
 function crateDownBtn() {
   const downWrapper = document.createElement('div')
   downWrapper.setAttribute('class', 'photo-op-item')
   const downBtn = document.createElement('span')
   downBtn.setAttribute('class', 'gb-btn')
+  downBtn.id = BTN_ID
   downBtn.innerText = '下载全部图片'
   downBtn.style.cursor = 'pointer'
   downWrapper.appendChild(downBtn)

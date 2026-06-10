@@ -14,6 +14,7 @@
     <div class="tabs">
       <span id="tabGenerate" class="tab active" data-mode="generate">生成</span>
       <span id="tabValidate" class="tab" data-mode="validate">校验</span>
+      <span id="tabInvValidate" class="tab" data-mode="invValidate">在售校验</span>
     </div>
 
     <!-- ============== GENERATE MODE ============== -->
@@ -25,19 +26,25 @@
       </div>
 
       <div class="section">
-        <label class="section-label">2. 模板文件 (DNG 动销表.xlsx)</label>
+        <label class="section-label">2. 在售库存文件 (FBA 在售库存.xlsx)</label>
+        <input type="file" id="invInput" accept=".xlsx,.xls">
+        <div id="invStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label">3. 模板文件 (DNG 动销表.xlsx)</label>
         <input type="file" id="templateInput" accept=".xlsx,.xls">
         <div id="templateStatus" class="status">未选择模板</div>
       </div>
 
       <div class="section">
-        <label class="section-label" for="refDate">3. 参考日期</label>
+        <label class="section-label" for="refDate">4. 参考日期</label>
         <input type="date" id="refDate">
         <div class="hint">仅统计参考日期前30天的订单</div>
       </div>
 
       <div class="section">
-        <button id="generateBtn" disabled>4. 生成动销表</button>
+        <button id="generateBtn" disabled>5. 生成动销表</button>
         <div id="genProgress" class="progress hidden">
           <div class="spinner"></div>
           <span id="genProgressText">处理中...</span>
@@ -81,6 +88,34 @@
       <div id="valResult" class="result-box hidden">
         <div class="result-info"><span id="valResultText"></span></div>
         <button id="valDownloadBtn" class="btn-green">下载标色后的校验文件</button>
+      </div>
+    </div>
+
+    <!-- ============== INVENTORY VALIDATE MODE ============== -->
+    <div id="modeInvValidate" class="mode-panel hidden">
+      <div class="section">
+        <label class="section-label">1. 源文件 (FBA 在售库存.xlsx)</label>
+        <input type="file" id="invValSourceInput" accept=".xlsx,.xls">
+        <div id="invValSourceStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <label class="section-label">2. 校验文件 (已填充的动销表.xlsx)</label>
+        <input type="file" id="invValRefInput" accept=".xlsx,.xls">
+        <div id="invValRefStatus" class="status">未选择文件</div>
+      </div>
+
+      <div class="section">
+        <button id="invValidateBtn" disabled>3. 开始校验</button>
+        <div id="invValProgress" class="progress hidden">
+          <div class="spinner"></div>
+          <span id="invValProgressText">校验中...</span>
+        </div>
+      </div>
+
+      <div id="invValResult" class="result-box hidden">
+        <div class="result-info"><span id="invValResultText"></span></div>
+        <button id="invValDownloadBtn" class="btn-green">下载差异文件</button>
       </div>
     </div>
 

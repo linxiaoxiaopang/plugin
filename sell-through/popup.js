@@ -12,6 +12,8 @@
   const fileStatus = document.getElementById('fileStatus');
   const templateInput = document.getElementById('templateInput');
   const templateStatus = document.getElementById('templateStatus');
+  const invInput = document.getElementById('invInput');
+  const invStatus = document.getElementById('invStatus');
   const refDateInput = document.getElementById('refDate');
   const generateBtn = document.getElementById('generateBtn');
   const genProgress = document.getElementById('genProgress');
@@ -32,14 +34,33 @@
   const valResultText = document.getElementById('valResultText');
   const valDownloadBtn = document.getElementById('valDownloadBtn');
 
+  // Inventory Validate mode
+  const tabInvValidate = document.getElementById('tabInvValidate');
+  const modeInvValidate = document.getElementById('modeInvValidate');
+  const invValSourceInput = document.getElementById('invValSourceInput');
+  const invValSourceStatus = document.getElementById('invValSourceStatus');
+  const invValRefInput = document.getElementById('invValRefInput');
+  const invValRefStatus = document.getElementById('invValRefStatus');
+  const invValidateBtn = document.getElementById('invValidateBtn');
+  const invValProgress = document.getElementById('invValProgress');
+  const invValProgressText = document.getElementById('invValProgressText');
+  const invValResult = document.getElementById('invValResult');
+  const invValResultText = document.getElementById('invValResultText');
+  const invValDownloadBtn = document.getElementById('invValDownloadBtn');
+
   // ==================== State ====================
   let rawOrders = null;
   let templateWB = null;
   let templateReady = false;
+  let inventoryMap = null;
 
   let valSourceWB = null;
   let valCheckWB = null;
   let valReady = false;
+
+  let invValSourceWB = null;
+  let invValRefWB = null;
+  let invValReady = false;
 
   // ==================== Init ====================
   const today = new Date();
@@ -63,12 +84,15 @@
   function switchMode(mode) {
     tabGenerate.classList.toggle('active', mode === 'generate');
     tabValidate.classList.toggle('active', mode === 'validate');
+    tabInvValidate.classList.toggle('active', mode === 'invValidate');
     modeGenerate.classList.toggle('hidden', mode !== 'generate');
     modeValidate.classList.toggle('hidden', mode !== 'validate');
+    modeInvValidate.classList.toggle('hidden', mode !== 'invValidate');
   }
 
   tabGenerate.addEventListener('click', function () { switchMode('generate'); });
   tabValidate.addEventListener('click', function () { switchMode('validate'); });
+  tabInvValidate.addEventListener('click', function () { switchMode('invValidate'); });
 
   // ==================== Generate: file handlers ====================
   fileInput.addEventListener('change', function (e) {
@@ -137,6 +161,36 @@
     reader.readAsArrayBuffer(file);
   });
 
+  invInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) {
+      invStatus.textContent = '未选择文件';
+      invStatus.className = 'status';
+      inventoryMap = null;
+      return;
+    }
+    invStatus.textContent = '读取中 ' + file.name + '...';
+    invStatus.className = 'status';
+    const reader = new FileReader();
+    reader.onload = async function (evt) {
+      try {
+        inventoryMap = await parseInventory(new Uint8Array(evt.target.result));
+        invStatus.textContent = '已加载: ' + file.name + ' (' + inventoryMap.size + ' 个SKU)';
+        invStatus.className = 'status ok';
+      } catch (err) {
+        invStatus.textContent = '错误: ' + err.message;
+        invStatus.className = 'status error';
+        inventoryMap = null;
+      }
+    };
+    reader.onerror = function () {
+      invStatus.textContent = '读取文件失败';
+      invStatus.className = 'status error';
+      inventoryMap = null;
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
   function checkGenReady() {
     generateBtn.disabled = !(rawOrders && templateReady);
   }
@@ -155,7 +209,10 @@
 
     setTimeout(function () {
       try {
-        fillTemplate(rawOrders, templateWB, refDate);
+        if (inventoryMap) {
+          genProgressText.textContent = '在售库存已加载 (' + inventoryMap.size + ' 个SKU)';
+        }
+        fillTemplate(rawOrders, templateWB, refDate, inventoryMap);
       } catch (err) {
         genProgress.classList.add('hidden');
         generateBtn.disabled = false;
@@ -169,7 +226,7 @@
     if (!blob) return;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'DNG_Sales_Filled_' + nowStr() + '.xlsx';
+    link.download = nowStr() + '_DNG_已填充.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -235,6 +292,69 @@
     reader.readAsArrayBuffer(file);
   });
 
+  // ==================== Inventory Validate: file handlers ====================
+  invValSourceInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) {
+      invValSourceStatus.textContent = '未选择文件';
+      invValSourceStatus.className = 'status';
+      invValSourceWB = null;
+      checkInvValReady();
+      return;
+    }
+    invValSourceStatus.textContent = '读取中...';
+    invValSourceStatus.className = 'status';
+    const reader = new FileReader();
+    reader.onload = async function (evt) {
+      try {
+        invValSourceWB = new ExcelJS.Workbook();
+        await invValSourceWB.xlsx.load(evt.target.result);
+        invValSourceStatus.textContent = '已加载: ' + file.name;
+        invValSourceStatus.className = 'status ok';
+        checkInvValReady();
+      } catch (err) {
+        invValSourceStatus.textContent = '错误: ' + err.message;
+        invValSourceStatus.className = 'status error';
+        invValSourceWB = null;
+        checkInvValReady();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  invValRefInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) {
+      invValRefStatus.textContent = '未选择文件';
+      invValRefStatus.className = 'status';
+      invValRefWB = null;
+      checkInvValReady();
+      return;
+    }
+    invValRefStatus.textContent = '读取中...';
+    invValRefStatus.className = 'status';
+    const reader = new FileReader();
+    reader.onload = async function (evt) {
+      try {
+        invValRefWB = new ExcelJS.Workbook();
+        await invValRefWB.xlsx.load(evt.target.result);
+        invValRefStatus.textContent = '已加载: ' + file.name;
+        invValRefStatus.className = 'status ok';
+        checkInvValReady();
+      } catch (err) {
+        invValRefStatus.textContent = '错误: ' + err.message;
+        invValRefStatus.className = 'status error';
+        invValRefWB = null;
+        checkInvValReady();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  function checkInvValReady() {
+    invValidateBtn.disabled = !(invValSourceWB && invValRefWB);
+  }
+
   function checkValReady() {
     validateBtn.disabled = !(valSourceWB && valCheckWB);
   }
@@ -261,12 +381,165 @@
     if (!blob) return;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = '校验文件_已标色_' + nowStr() + '.xlsx';
+    link.download = nowStr() + '_校验文件_已标色.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
   });
+
+  // ==================== Inventory Validate: run ====================
+  invValidateBtn.addEventListener('click', function () {
+    if (!invValSourceWB || !invValRefWB) return;
+    invValProgress.classList.remove('hidden');
+    invValResult.classList.add('hidden');
+    invValidateBtn.disabled = true;
+    setTimeout(function () {
+      try {
+        validateInventory();
+      } catch (err) {
+        invValProgress.classList.add('hidden');
+        invValidateBtn.disabled = false;
+        alert('错误: ' + err.message);
+      }
+    }, 50);
+  });
+
+  invValDownloadBtn.addEventListener('click', function () {
+    const blob = invValDownloadBtn._blob;
+    if (!blob) return;
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = nowStr() + '_在售校验_已标差异.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  });
+
+  // ================================================================
+  //  INVENTORY VALIDATE: compare 在售数量 between template and source
+  // ================================================================
+
+  function validateInventory() {
+    invValProgressText.textContent = '解析源文件...';
+
+    const srcWS = invValSourceWB.worksheets[0];  // FBA 在售库存.xlsx (待标注)
+    const chkWS = invValRefWB.worksheets[0];     // 已填充的动销表.xlsx (参考)
+    if (!srcWS || !chkWS) throw new Error('文件缺少工作表');
+
+    // ---- Parse source (FBA 在售库存.xlsx): SKU -> { quantity, row } ----
+    const srcMap = new Map();
+    srcWS.eachRow(function (row, rowNum) {
+      if (rowNum === 1) return;
+      const sku = (row.getCell(1).value || '').toString().trim();
+      const qty = parseInt(row.getCell(2).value, 10);
+      if (!sku) return;
+      srcMap.set(sku, { value: isNaN(qty) ? null : qty, row: rowNum });
+    });
+
+    invValProgressText.textContent = '解析校验文件 (' + srcMap.size + ' 个SKU)...';
+
+    // ---- Parse check file (filled template): find SKU + 在售数量 columns ----
+    const chkHdrRow = findHeaderRow(chkWS, 'SKU', 10);
+    if (chkHdrRow === -1) throw new Error('校验文件前10行未找到 SKU 表头');
+
+    const groups = [];
+    const chkMaxCol = chkWS.columnCount || 95;
+    for (let c = 1; c <= chkMaxCol; c++) {
+      const hv = chkWS.getCell(chkHdrRow, c).value;
+      if (!hv) continue;
+      if (hv.toString().toUpperCase() === 'SKU') {
+        const grp = { skuCol: c, invCol: null };
+        for (let d = 1; d <= 5; d++) {
+          const h = chkWS.getCell(chkHdrRow, c + d).value;
+          if (!h) continue;
+          if (h.toString() === '在售数量') {
+            grp.invCol = c + d;
+            break;
+          }
+        }
+        groups.push(grp);
+      }
+    }
+    if (groups.length === 0) throw new Error(
+      '校验文件第' + chkHdrRow + '行未找到 在售数量 列');
+
+    // ---- Build check map: SKU -> value ----
+    const chkMap = new Map();
+    for (let r = 3; r <= chkWS.rowCount; r++) {
+      let rowEmpty = true;
+      for (const g of groups) {
+        const sv = chkWS.getCell(r, g.skuCol).value;
+        if (!sv) continue;
+        const sku = sv.toString().trim();
+        if (!sku) continue;
+        rowEmpty = false;
+        const tVal = chkWS.getCell(r, g.invCol).value;
+        chkMap.set(sku, tVal !== null && tVal !== undefined ? tVal : null);
+      }
+      if (rowEmpty) break;
+    }
+
+    invValProgressText.textContent = '对比差异...';
+
+    // ---- Compare (iterate over source SKUs) ----
+    let matchCount = 0;
+    let diffCount = 0;
+    let missingCount = 0;
+    const diffMap = new Map(); // SKU -> diff string
+
+    for (const [sku, srcInfo] of srcMap) {
+      const sVal = srcInfo.value;
+      const tVal = chkMap.has(sku) ? chkMap.get(sku) : undefined;
+
+      if (tVal === undefined) {
+        diffMap.set(sku, '校验文件无此SKU');
+        missingCount++;
+      } else if (sVal === null && tVal !== null) {
+        diffMap.set(sku, '源文件数量为空');
+        diffCount++;
+      } else if (tVal === null && sVal !== null) {
+        diffMap.set(sku, '模板未填充');
+        diffCount++;
+      } else if (sVal !== tVal) {
+        diffMap.set(sku, '源文件=' + (sVal === null ? '空' : sVal) + ', 模板=' + (tVal === null ? '空' : tVal));
+        diffCount++;
+      } else {
+        matchCount++;
+      }
+    }
+
+    invValProgressText.textContent = '写入差异说明...';
+
+    // ---- Write diff column to SOURCE file (FBA 在售库存) ----
+    srcWS.getCell(1, 3).value = '在售差异';
+
+    for (const [sku, diff] of diffMap) {
+      const info = srcMap.get(sku);
+      srcWS.getCell(info.row, 3).value = diff;
+    }
+
+    invValProgressText.textContent = '生成下载文件...';
+
+    // ---- Export source file ----
+    invValSourceWB.xlsx.writeBuffer().then(function (buffer) {
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      invValDownloadBtn._blob = blob;
+
+      invValProgress.classList.add('hidden');
+      invValidateBtn.disabled = false;
+
+      invValResultText.innerHTML = '在售校验完成<br>'
+        + '总SKU: ' + srcMap.size
+        + ' | 一致: ' + matchCount
+        + ' | 差异: ' + diffCount
+        + ' | 校验文件无此SKU: ' + missingCount;
+      invValResult.classList.remove('hidden');
+    });
+  }
 
   // ================================================================
   //  VALIDATE: compare 30-day counts between source and check file
@@ -318,7 +591,7 @@
     const srcMap = new Map();
     const srcMaxRow = srcWS.rowCount;
 
-    for (let r = 4; r <= srcMaxRow; r++) {
+    for (let r = 3; r <= srcMaxRow; r++) {
       let hasSku = false;
       for (const sc of srcSkuCols) {
         const sv = srcWS.getCell(r, sc).value;
@@ -481,7 +754,7 @@
   //  GENERATE: fill template with sales data
   // ================================================================
 
-  function fillTemplate(orders, tmplWB, refDate) {
+  function fillTemplate(orders, tmplWB, refDate, inventoryMap) {
     genProgressText.textContent = '聚合订单...';
 
     const skuMap = new Map();
@@ -510,7 +783,7 @@
     for (let c = 1; c <= maxCol; c++) {
       const hv = ws.getCell(hdrRow, c).value;
       if (hv && hv.toString().toUpperCase() === 'SKU') {
-        const grp = { skuCol: c, col7: [], col14: null, col30: null };
+        const grp = { skuCol: c, col7: [], col14: null, col30: null, invCol: null };
         for (let d = 1; d <= 5; d++) {
           const h = ws.getCell(hdrRow, c + d).value;
           if (!h) continue;
@@ -518,6 +791,7 @@
           if (/7/.test(hs))       grp.col7.push(c + d);
           if (/14/.test(hs))      grp.col14 = c + d;
           if (/30/.test(hs))      grp.col30 = c + d;
+          if (hs === '在售数量')   grp.invCol = c + d;
         }
         groupDefs.push(grp);
       }
@@ -529,9 +803,10 @@
     genProgressText.textContent = '填充数据 (' + groupDefs.length + ' 组)...';
 
     let filledCount = 0;
+    let invFilledCount = 0;
     let totalSkus = 0;
 
-    for (let r = 4; r <= ws.rowCount; r++) {
+    for (let r = 3; r <= ws.rowCount; r++) {
       for (const g of groupDefs) {
         const sv = ws.getCell(r, g.skuCol).value;
         if (!sv) continue;
@@ -539,11 +814,19 @@
         if (!sku) continue;
         totalSkus++;
         const data = skuMap.get(sku);
-        if (!data) continue;
-        for (const col of g.col7)  ws.getCell(r, col).value = data.d7 || 0;
-        if (g.col14)               ws.getCell(r, g.col14).value = data.d14 || 0;
-        if (g.col30)               ws.getCell(r, g.col30).value = data.d30 || 0;
-        filledCount++;
+        if (data) {
+          for (const col of g.col7)  ws.getCell(r, col).value = data.d7 || 0;
+          if (g.col14)               ws.getCell(r, g.col14).value = data.d14 || 0;
+          if (g.col30)               ws.getCell(r, g.col30).value = data.d30 || 0;
+          filledCount++;
+        }
+        if (inventoryMap && g.invCol) {
+          const inv = inventoryMap.get(sku);
+          if (inv !== undefined) {
+            ws.getCell(r, g.invCol).value = inv;
+            invFilledCount++;
+          }
+        }
       }
     }
 
@@ -558,7 +841,11 @@
       genProgress.classList.add('hidden');
       generateBtn.disabled = false;
 
-      genResultText.textContent = '完成！填充 ' + filledCount + ' / ' + totalSkus + ' 个模板SKU';
+      let invMsg = '';
+      if (inventoryMap) {
+        invMsg = ' | 在售数量填充 ' + invFilledCount + ' 个SKU';
+      }
+      genResultText.textContent = '完成！销量填充 ' + filledCount + ' / ' + totalSkus + ' 个模板SKU' + invMsg;
       genResult.classList.remove('hidden');
     });
   }
@@ -596,6 +883,24 @@
     return orders;
   }
 
+  async function parseInventory(uint8arr) {
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(uint8arr.buffer);
+
+    const ws = wb.worksheets[0];
+    if (!ws) throw new Error('未找到工作表');
+
+    const map = new Map();
+    ws.eachRow(function (row, rowNum) {
+      if (rowNum === 1) return;
+      const sku = (row.getCell(1).value || '').toString().trim();
+      const qty = parseInt(row.getCell(2).value, 10) || 0;
+      if (!sku) return;
+      map.set(sku, qty);
+    });
+    return map;
+  }
+
   function dateFromSerial(serial) {
     if (serial < 0) return null;
     const epoch = new Date(1899, 11, 30);
@@ -629,11 +934,12 @@
   function nowStr() {
     const d = new Date();
     return d.getFullYear()
-      + String(d.getMonth() + 1).padStart(2, '0')
-      + String(d.getDate()).padStart(2, '0')
+      + '-' + String(d.getMonth() + 1).padStart(2, '0')
+      + '-' + String(d.getDate()).padStart(2, '0')
       + '_'
       + String(d.getHours()).padStart(2, '0')
-      + String(d.getMinutes()).padStart(2, '0');
+      + String(d.getMinutes()).padStart(2, '0')
+      + String(d.getSeconds()).padStart(2, '0');
   }
 
 })();
